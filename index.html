@@ -72,19 +72,25 @@
         }
 
         // Search names
-        async // Search names in real-time
-function searchNames() {
+       // Search names in real-time from Supabase
+async function searchNames() {
     const searchQuery = document.getElementById('search').value.toLowerCase();
-    
-    // Fetch names from local storage
-    let names = JSON.parse(localStorage.getItem("names")) || [];
 
-    // Filter names that include the search query
-    let filteredNames = names.filter(name => name.toLowerCase().includes(searchQuery));
+    // Fetch all names from Supabase
+    let { data: guests, error } = await supabase.from("guests").select("*").order("id", { ascending: true });
 
-    // Re-render the table with filtered results
-    displayNames(filteredNames);
+    if (error) {
+        console.error("Error fetching names:", error);
+        return;
+    }
+
+    // Filter guests based on the search query
+    let filteredGuests = guests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
+
+    // Display the filtered names
+    displayNames(filteredGuests);
 }
+
 
 
         // Load names when page loads
