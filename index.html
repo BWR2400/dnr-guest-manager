@@ -72,15 +72,20 @@
         }
 
         // Search names
-        async function searchNames() {
-            const searchQuery = document.getElementById('search').value.toLowerCase();
-            let { data: guests, error } = await supabase.from("guests").select("*").ilike("name", `%${searchQuery}%`);
-            if (error) {
-                console.error("Error searching names:", error);
-                return;
-            }
-            displayNames(guests);
-        }
+        async // Search names in real-time
+function searchNames() {
+    const searchQuery = document.getElementById('search').value.toLowerCase();
+    
+    // Fetch names from local storage
+    let names = JSON.parse(localStorage.getItem("names")) || [];
+
+    // Filter names that include the search query
+    let filteredNames = names.filter(name => name.toLowerCase().includes(searchQuery));
+
+    // Re-render the table with filtered results
+    displayNames(filteredNames);
+}
+
 
         // Load names when page loads
         loadNames();
@@ -186,7 +191,8 @@
         </form>
 
         <div class="search-container">
-            <input type="text" id="search" placeholder="Search for a name" onkeyup="searchNames()">
+           <input type="text" id="search" placeholder="Search for a name" oninput="searchNames()">
+
         </div>
 
         <table border="1">
