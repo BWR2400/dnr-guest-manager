@@ -27,16 +27,8 @@
             const nameList = document.getElementById('name-list');
             nameList.innerHTML = '';
 
-            // Add total count at the top
-            const totalCount = document.getElementById('total-count');
-            totalCount.textContent = `Total Guests: ${guests.length}`;
-
-            guests.forEach((guest, index) => {
+            guests.forEach((guest) => {
                 const row = document.createElement('tr');
-
-                // Add row number (index + 1)
-                const numberCell = document.createElement('td');
-                numberCell.textContent = index + 1;
 
                 const nameCell = document.createElement('td');
                 nameCell.textContent = guest.name;
@@ -48,7 +40,6 @@
                 removeButton.onclick = () => removeName(guest.id);
 
                 removeCell.appendChild(removeButton);
-                row.appendChild(numberCell); // Append row number
                 row.appendChild(nameCell);
                 row.appendChild(removeCell);
                 nameList.appendChild(row);
@@ -93,7 +84,7 @@
             }
 
             // Filter guests based on the search query
-            const filteredGuests = guests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
+            let filteredGuests = guests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
 
             // Display the filtered names
             displayNames(filteredGuests);
@@ -197,22 +188,18 @@
     <div class="container">
         <h1>DNR GUEST</h1>
 
-        <!-- Display total count -->
-        <p id="total-count">Total Guests: 0</p>
-
         <form id="username-form">
             <input type="text" id="username" placeholder="Enter your name" required>
             <button type="submit">Save</button>
         </form>
 
         <div class="search-container">
-            <input type="text" id="search" placeholder="Search for a name" oninput="searchNames()">
+           <input type="text" id="search" placeholder="Search for a name" oninput="searchNames()">
         </div>
 
         <table border="1">
             <thead>
                 <tr>
-                    <th>#</th> <!-- Row number column -->
                     <th>Name</th>
                     <th>Action</th>
                 </tr>
