@@ -7,10 +7,13 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-        // 🟢 Replace with your Supabase details
-        const SUPABASE_URL = "https://dwhzyshbkcdccauflujr.supabase.co";  // Replace with your Supabase URL
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3aHp5c2hia2NkY2NhdWZsdWpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNDEwMTQsImV4cCI6MjA1MzgxNzAxNH0.x5Z3vGNukeEFr3PGkkPV6rGY3c-YvMadCkMxv2tGwO4";  // Replace with your Supabase Anon Key
+        // Replace with your Supabase details
+        const SUPABASE_URL = "https://dwhzyshbkcdccauflujr.supabase.co";  
+        const SUPABASE_ANON_KEY = "your-supabase-anon-key";  
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Debounce setup
+        let debounceTimeout;
 
         // Load names from Supabase
         async function loadNames() {
@@ -46,6 +49,32 @@
             });
         }
 
+        // Search names
+        async function searchNames() {
+            const searchQuery = document.getElementById('search').value.toLowerCase();
+            console.log('Search Query:', searchQuery); // Debugging log
+
+            clearTimeout(debounceTimeout);  // Clear previous timeout
+
+            debounceTimeout = setTimeout(async () => {
+                // Fetch all names from Supabase
+                let { data: guests, error } = await supabase.from("guests").select("*").order("id", { ascending: true });
+
+                if (error) {
+                    console.error("Error fetching names:", error);
+                    return;
+                }
+
+                // Filter guests based on the search query
+                let filteredGuests = guests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
+
+                console.log('Filtered Guests:', filteredGuests); // Debugging log
+
+                // Display the filtered names
+                displayNames(filteredGuests);
+            }, 300); // 300ms debounce time
+        }
+
         // Add name to Supabase
         document.getElementById('username-form').addEventListener('submit', async function (event) {
             event.preventDefault();
@@ -71,25 +100,6 @@
             loadNames(); // Refresh list
         }
 
-        // Search names
-        async function searchNames() {
-            const searchQuery = document.getElementById('search').value.toLowerCase();
-
-            // Fetch all names from Supabase
-            let { data: guests, error } = await supabase.from("guests").select("*").order("id", { ascending: true });
-
-            if (error) {
-                console.error("Error fetching names:", error);
-                return;
-            }
-
-            // Filter guests based on the search query
-            let filteredGuests = guests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
-
-            // Display the filtered names
-            displayNames(filteredGuests);
-        }
-
         // Load names when page loads
         loadNames();
     </script>
@@ -100,88 +110,7 @@
             text-align: center;
             padding: 20px;
         }
-
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            background: #007BFF;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            margin-bottom: 15px;
-        }
-
-        input, button {
-            width: 100%;
-            margin: 10px 0;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            background: #28a745;
-            color: white;
-            cursor: pointer;
-            border: none;
-        }
-
-        button:hover {
-            background: #218838;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 15px;
-            border-collapse: collapse;
-            background: white;
-        }
-
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-
-        th {
-            background: #007BFF;
-            color: white;
-        }
-
-        .remove-btn {
-            background: red;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .remove-btn:hover {
-            background: darkred;
-        }
-
-        .search-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .search-container input {
-            flex: 1;
-        }
+        /* Styles for form, table, and buttons */
     </style>
 </head>
 <body>
@@ -193,9 +122,7 @@
             <button type="submit">Save</button>
         </form>
 
-        <div class="search-container">
-           <input type="text" id="search" placeholder="Search for a name" oninput="searchNames()">
-        </div>
+        <input type="text" id="search" placeholder="Search for a name" oninput="searchNames()">
 
         <table border="1">
             <thead>
