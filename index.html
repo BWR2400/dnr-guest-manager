@@ -93,7 +93,7 @@
             }
 
             // Filter guests based on the search query
-            let filteredGuests = guests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
+            const filteredGuests = guests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
 
             // Display the filtered names
             displayNames(filteredGuests);
