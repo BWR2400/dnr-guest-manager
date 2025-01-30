@@ -27,8 +27,16 @@
             const nameList = document.getElementById('name-list');
             nameList.innerHTML = '';
 
-            guests.forEach((guest) => {
+            // Add total count at the top
+            const totalCount = document.getElementById('total-count');
+            totalCount.textContent = `Total Guests: ${guests.length}`;
+
+            guests.forEach((guest, index) => {
                 const row = document.createElement('tr');
+
+                // Add row number (index + 1)
+                const numberCell = document.createElement('td');
+                numberCell.textContent = index + 1;
 
                 const nameCell = document.createElement('td');
                 nameCell.textContent = guest.name;
@@ -40,6 +48,7 @@
                 removeButton.onclick = () => removeName(guest.id);
 
                 removeCell.appendChild(removeButton);
+                row.appendChild(numberCell); // Append row number
                 row.appendChild(nameCell);
                 row.appendChild(removeCell);
                 nameList.appendChild(row);
@@ -72,26 +81,23 @@
         }
 
         // Search names
-       // Search names in real-time from Supabase
-async function searchNames() {
-    const searchQuery = document.getElementById('search').value.toLowerCase();
+        async function searchNames() {
+            const searchQuery = document.getElementById('search').value.toLowerCase();
 
-    // Fetch all names from Supabase
-    let { data: guests, error } = await supabase.from("guests").select("*").order("id", { ascending: true });
+            // Fetch all names from Supabase
+            let { data: guests, error } = await supabase.from("guests").select("*").order("id", { ascending: true });
 
-    if (error) {
-        console.error("Error fetching names:", error);
-        return;
-    }
+            if (error) {
+                console.error("Error fetching names:", error);
+                return;
+            }
 
-    // Filter guests based on the search query
-    let filteredGuests = guests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
+            // Filter guests based on the search query
+            let filteredGuests = guests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
 
-    // Display the filtered names
-    displayNames(filteredGuests);
-}
-
-
+            // Display the filtered names
+            displayNames(filteredGuests);
+        }
 
         // Load names when page loads
         loadNames();
@@ -191,19 +197,22 @@ async function searchNames() {
     <div class="container">
         <h1>DNR GUEST</h1>
 
+        <!-- Display total count -->
+        <p id="total-count">Total Guests: 0</p>
+
         <form id="username-form">
             <input type="text" id="username" placeholder="Enter your name" required>
             <button type="submit">Save</button>
         </form>
 
         <div class="search-container">
-           <input type="text" id="search" placeholder="Search for a name" oninput="searchNames()">
-
+            <input type="text" id="search" placeholder="Search for a name" oninput="searchNames()">
         </div>
 
         <table border="1">
             <thead>
                 <tr>
+                    <th>#</th> <!-- Row number column -->
                     <th>Name</th>
                     <th>Action</th>
                 </tr>
