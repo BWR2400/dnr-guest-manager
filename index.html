@@ -8,24 +8,30 @@
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
         // 🟢 Replace with your Supabase details
-        const SUPABASE_URL = "https://dwhzyshbkcdccauflujr.supabase.co";  // Replace with your Supabase URL
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3aHp5c2hia2NkY2NhdWZsdWpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNDEwMTQsImV4cCI6MjA1MzgxNzAxNH0.x5Z3vGNukeEFr3PGkkPV6rGY3c-YvMadCkMxv2tGwO4";  // Replace with your Supabase Anon Key
+        const SUPABASE_URL = "https://dwhzyshbkcdccauflujr.supabase.co";  
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3aHp5c2hia2NkY2NhdWZsdWpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNDEwMTQsImV4cCI6MjA1MzgxNzAxNH0.x5Z3vGNukeEFr3PGkkPV6rGY3c-YvMadCkMxv2tGwO4";  
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let allGuests = []; // Store all guests locally for filtering
 
         // Load names from Supabase
         async function loadNames() {
             let { data: guests, error } = await supabase.from("guests").select("*").order("id", { ascending: true });
+
             if (error) {
                 console.error("Error fetching names:", error);
                 return;
             }
-            displayNames(guests);
+
+            allGuests = guests; // Store guests for filtering
+            displayNames(allGuests);
         }
 
         // Display names in table
         function displayNames(guests) {
             const nameList = document.getElementById('name-list');
             nameList.innerHTML = '';
+
             const totalCount = document.getElementById('total-count');
             totalCount.textContent = `Total Guests: ${guests.length}`;
 
@@ -56,12 +62,15 @@
         document.getElementById('username-form').addEventListener('submit', async function (event) {
             event.preventDefault();
             const nameInput = document.getElementById('username').value.trim();
+
             if (nameInput) {
                 let { error } = await supabase.from("guests").insert([{ name: nameInput }]);
+
                 if (error) {
                     console.error("Error adding name:", error);
                     return;
                 }
+
                 document.getElementById('username').value = '';
                 loadNames(); // Refresh list
             }
@@ -70,36 +79,30 @@
         // Remove name from Supabase
         async function removeName(id) {
             let { error } = await supabase.from("guests").delete().match({ id });
+
             if (error) {
                 console.error("Error removing name:", error);
                 return;
             }
+
             loadNames(); // Refresh list
         }
 
         // Search names
-        async function searchNames() {
+        function searchNames() {
             const searchQuery = document.getElementById('search').value.trim().toLowerCase();
 
-            let { data: guests, error } = await supabase.from("guests").select("*");
-            
-            if (error) {
-                console.error("Error fetching names:", error);
-                return;
-            }
-
-            // If search query is empty, display all guests
             if (searchQuery === "") {
-                displayNames(guests);
+                displayNames(allGuests); // Show all guests if search is empty
                 return;
             }
 
-            // Filter guests based on search query
-            const filteredGuests = guests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
-
-            // Display the filtered names
+            const filteredGuests = allGuests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
             displayNames(filteredGuests);
         }
+
+        // Attach event listener for search input
+        document.getElementById('search').addEventListener("input", searchNames);
 
         // Load names when page loads
         loadNames();
@@ -193,7 +196,7 @@
             <button type="submit">Save</button>
         </form>
         <div class="search-container">
-            <input type="text" id="search" placeholder="Search for a name" onkeyup="searchNames()">
+            <input type="text" id="search" placeholder="Search for a name">
         </div>
         <table border="1">
             <thead>
