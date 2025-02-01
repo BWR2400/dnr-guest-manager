@@ -11,6 +11,7 @@
         const SUPABASE_URL = "https://dwhzyshbkcdccauflujr.supabase.co";  // Replace with your Supabase URL
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3aHp5c2hia2NkY2NhdWZsdWpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNDEwMTQsImV4cCI6MjA1MzgxNzAxNH0.x5Z3vGNukeEFr3PGkkPV6rGY3c-YvMadCkMxv2tGwO4";  // Replace with your Supabase Anon Key
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         // Load names from Supabase
         async function loadNames() {
             let { data: guests, error } = await supabase.from("guests").select("*").order("id", { ascending: true });
@@ -20,32 +21,37 @@
             }
             displayNames(guests);
         }
+
         // Display names in table
         function displayNames(guests) {
             const nameList = document.getElementById('name-list');
             nameList.innerHTML = '';
-            // Add total count at the top
             const totalCount = document.getElementById('total-count');
             totalCount.textContent = `Total Guests: ${guests.length}`;
+
             guests.forEach((guest, index) => {
                 const row = document.createElement('tr');
-                // Add row number (index + 1)
+
                 const numberCell = document.createElement('td');
                 numberCell.textContent = index + 1;
+                
                 const nameCell = document.createElement('td');
                 nameCell.textContent = guest.name;
+
                 const removeCell = document.createElement('td');
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.classList.add('remove-btn');
                 removeButton.onclick = () => removeName(guest.id);
+
                 removeCell.appendChild(removeButton);
-                row.appendChild(numberCell); // Append row number
+                row.appendChild(numberCell);
                 row.appendChild(nameCell);
                 row.appendChild(removeCell);
                 nameList.appendChild(row);
             });
         }
+
         // Add name to Supabase
         document.getElementById('username-form').addEventListener('submit', async function (event) {
             event.preventDefault();
@@ -60,6 +66,7 @@
                 loadNames(); // Refresh list
             }
         });
+
         // Remove name from Supabase
         async function removeName(id) {
             let { error } = await supabase.from("guests").delete().match({ id });
@@ -69,20 +76,31 @@
             }
             loadNames(); // Refresh list
         }
+
         // Search names
         async function searchNames() {
-            const searchQuery = document.getElementById('search').value.toLowerCase();
-            // Fetch all names from Supabase
-            let { data: guests, error } = await supabase.from("guests").select("*").order("id", { ascending: true });
+            const searchQuery = document.getElementById('search').value.trim().toLowerCase();
+
+            let { data: guests, error } = await supabase.from("guests").select("*");
+            
             if (error) {
                 console.error("Error fetching names:", error);
                 return;
             }
-            // Filter guests based on the search query
+
+            // If search query is empty, display all guests
+            if (searchQuery === "") {
+                displayNames(guests);
+                return;
+            }
+
+            // Filter guests based on search query
             const filteredGuests = guests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
+
             // Display the filtered names
             displayNames(filteredGuests);
         }
+
         // Load names when page loads
         loadNames();
     </script>
@@ -175,7 +193,7 @@
             <button type="submit">Save</button>
         </form>
         <div class="search-container">
-            <input type="text" id="search" placeholder="Search for a name" oninput="searchNames()">
+            <input type="text" id="search" placeholder="Search for a name" onkeyup="searchNames()">
         </div>
         <table border="1">
             <thead>
