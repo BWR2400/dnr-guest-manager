@@ -12,9 +12,8 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3aHp5c2hia2NkY2NhdWZsdWpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNDEwMTQsImV4cCI6MjA1MzgxNzAxNH0.x5Z3vGNukeEFr3PGkkPV6rGY3c-YvMadCkMxv2tGwO4";  
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let allGuests = []; // Store all guests locally for filtering and sorting
+        let allGuests = [];
 
-        // Load names from Supabase
         async function loadNames() {
             let { data: guests, error } = await supabase.from("guests").select("*");
 
@@ -23,13 +22,10 @@
                 return;
             }
 
-            // Sort guests alphabetically by name (A-Z)
             allGuests = guests.sort((a, b) => a.name.localeCompare(b.name));
-
             displayNames(allGuests);
         }
 
-        // Display names in table
         function displayNames(guests) {
             const nameList = document.getElementById('name-list');
             nameList.innerHTML = '';
@@ -42,13 +38,13 @@
 
                 const numberCell = document.createElement('td');
                 numberCell.textContent = index + 1;
-                
+
                 const nameCell = document.createElement('td');
                 nameCell.textContent = guest.name;
 
                 const removeCell = document.createElement('td');
                 const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
+                removeButton.textContent = '❌ Remove';
                 removeButton.classList.add('remove-btn');
                 removeButton.onclick = () => removeName(guest.id);
 
@@ -60,7 +56,6 @@
             });
         }
 
-        // Add name to Supabase
         document.getElementById('username-form').addEventListener('submit', async function (event) {
             event.preventDefault();
             const nameInput = document.getElementById('username').value.trim();
@@ -74,11 +69,10 @@
                 }
 
                 document.getElementById('username').value = '';
-                loadNames(); // Refresh list
+                loadNames();
             }
         });
 
-        // Remove name from Supabase
         async function removeName(id) {
             let { error } = await supabase.from("guests").delete().match({ id });
 
@@ -87,15 +81,14 @@
                 return;
             }
 
-            loadNames(); // Refresh list
+            loadNames();
         }
 
-        // Search names
         function searchNames() {
             const searchQuery = document.getElementById('search').value.trim().toLowerCase();
 
             if (searchQuery === "") {
-                displayNames(allGuests); // Show all guests if search is empty
+                displayNames(allGuests);
                 return;
             }
 
@@ -103,107 +96,145 @@
             displayNames(filteredGuests);
         }
 
-        // Attach event listener for search input
         document.getElementById('search').addEventListener("input", searchNames);
 
-        // Load names when page loads
         loadNames();
     </script>
+
     <style>
+        /* Google Font */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
             text-align: center;
             padding: 20px;
         }
+        
         .container {
             max-width: 600px;
             margin: auto;
             background: white;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         }
+
         h1 {
             background: #007BFF;
             color: white;
             padding: 15px;
-            border-radius: 5px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            margin-bottom: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
         }
+
         input, button {
             width: 100%;
             margin: 10px 0;
-            padding: 10px;
+            padding: 12px;
             font-size: 16px;
-            border-radius: 5px;
+            border-radius: 8px;
             border: 1px solid #ccc;
         }
+
         button {
             background: #28a745;
             color: white;
             cursor: pointer;
+            font-weight: 600;
             border: none;
+            transition: 0.3s;
         }
+
         button:hover {
             background: #218838;
+            transform: scale(1.05);
         }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .search-container input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
         table {
             width: 100%;
             margin-top: 15px;
             border-collapse: collapse;
             background: white;
+            border-radius: 8px;
+            overflow: hidden;
         }
+
         th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
+            padding: 14px;
+            border-bottom: 1px solid #ddd;
             text-align: left;
         }
+
         th {
             background: #007BFF;
             color: white;
+            font-weight: 600;
         }
+
         .remove-btn {
-            background: red;
+            background: #dc3545;
             color: white;
             border: none;
-            padding: 8px 12px;
+            padding: 8px 14px;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 8px;
+            transition: 0.3s;
         }
+
         .remove-btn:hover {
-            background: darkred;
+            background: #b02a37;
+            transform: scale(1.1);
         }
-        .search-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-        }
-        .search-container input {
-            flex: 1;
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            table {
+                font-size: 14px;
+            }
+            th, td {
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>DNR GUEST</h1>
-        <!-- Display total count -->
+        <h1>DNR GUEST MANAGER</h1>
         <p id="total-count">Total Guests: 0</p>
+
         <form id="username-form">
             <input type="text" id="username" placeholder="Enter your name" required>
             <button type="submit">Save</button>
         </form>
+
         <div class="search-container">
-            <input type="text" id="search" placeholder="Search for a name">
+            <input type="text" id="search" placeholder="🔍 Search for a name">
         </div>
+
         <table border="1">
             <thead>
                 <tr>
-                    <th>#</th> <!-- Row number column -->
+                    <th>#</th>
                     <th>Name</th>
                     <th>Action</th>
                 </tr>
