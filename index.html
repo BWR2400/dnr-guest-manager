@@ -12,18 +12,20 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3aHp5c2hia2NkY2NhdWZsdWpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNDEwMTQsImV4cCI6MjA1MzgxNzAxNH0.x5Z3vGNukeEFr3PGkkPV6rGY3c-YvMadCkMxv2tGwO4";  
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let allGuests = []; // Store all guests locally for filtering
+        let allGuests = []; // Store all guests locally for filtering and sorting
 
         // Load names from Supabase
         async function loadNames() {
-            let { data: guests, error } = await supabase.from("guests").select("*").order("id", { ascending: true });
+            let { data: guests, error } = await supabase.from("guests").select("*");
 
             if (error) {
                 console.error("Error fetching names:", error);
                 return;
             }
 
-            allGuests = guests; // Store guests for filtering
+            // Sort guests alphabetically by name (A-Z)
+            allGuests = guests.sort((a, b) => a.name.localeCompare(b.name));
+
             displayNames(allGuests);
         }
 
