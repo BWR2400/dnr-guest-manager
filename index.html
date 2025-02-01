@@ -7,7 +7,6 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-        // 🟢 Replace with your Supabase details
         const SUPABASE_URL = "https://dwhzyshbkcdccauflujr.supabase.co";  
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3aHp5c2hia2NkY2NhdWZsdWpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNDEwMTQsImV4cCI6MjA1MzgxNzAxNH0.x5Z3vGNukeEFr3PGkkPV6rGY3c-YvMadCkMxv2tGwO4";  
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -16,7 +15,6 @@
 
         async function loadNames() {
             let { data: guests, error } = await supabase.from("guests").select("*");
-
             if (error) {
                 console.error("Error fetching names:", error);
                 return;
@@ -44,7 +42,7 @@
 
                 const removeCell = document.createElement('td');
                 const removeButton = document.createElement('button');
-                removeButton.textContent = '❌ Remove';
+                removeButton.textContent = '✖ Remove';
                 removeButton.classList.add('remove-btn');
                 removeButton.onclick = () => removeName(guest.id);
 
@@ -62,7 +60,6 @@
 
             if (nameInput) {
                 let { error } = await supabase.from("guests").insert([{ name: nameInput }]);
-
                 if (error) {
                     console.error("Error adding name:", error);
                     return;
@@ -75,59 +72,50 @@
 
         async function removeName(id) {
             let { error } = await supabase.from("guests").delete().match({ id });
-
             if (error) {
                 console.error("Error removing name:", error);
                 return;
             }
-
             loadNames();
         }
 
         function searchNames() {
             const searchQuery = document.getElementById('search').value.trim().toLowerCase();
-
             if (searchQuery === "") {
                 displayNames(allGuests);
                 return;
             }
-
             const filteredGuests = allGuests.filter(guest => guest.name.toLowerCase().includes(searchQuery));
             displayNames(filteredGuests);
         }
 
         document.getElementById('search').addEventListener("input", searchNames);
-
         loadNames();
     </script>
 
     <style>
-        /* Google Font */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
             text-align: center;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 600px;
             margin: auto;
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
         }
 
         h1 {
-            background: #007BFF;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            color: #ff6f61;
             font-weight: 600;
+            margin-bottom: 15px;
         }
 
         input, button {
@@ -136,21 +124,25 @@
             padding: 12px;
             font-size: 16px;
             border-radius: 8px;
-            border: 1px solid #ccc;
+            border: none;
+        }
+
+        input {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
         }
 
         button {
-            background: #28a745;
+            background: #ff6f61;
             color: white;
-            cursor: pointer;
             font-weight: 600;
-            border: none;
-            transition: 0.3s;
+            cursor: pointer;
+            transition: 0.3s ease-in-out;
         }
 
         button:hover {
-            background: #218838;
-            transform: scale(1.05);
+            background: #e05650;
+            transform: translateY(-2px);
         }
 
         .search-container {
@@ -161,10 +153,9 @@
 
         .search-container input {
             flex: 1;
-            padding: 10px;
             border-radius: 8px;
-            border: 1px solid #ccc;
             font-size: 16px;
+            padding: 10px;
         }
 
         table {
@@ -183,9 +174,13 @@
         }
 
         th {
-            background: #007BFF;
+            background: #ff6f61;
             color: white;
             font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
         }
 
         .remove-btn {
@@ -195,7 +190,7 @@
             padding: 8px 14px;
             cursor: pointer;
             border-radius: 8px;
-            transition: 0.3s;
+            transition: 0.3s ease-in-out;
         }
 
         .remove-btn:hover {
@@ -203,7 +198,6 @@
             transform: scale(1.1);
         }
 
-        /* Responsive */
         @media (max-width: 600px) {
             .container {
                 padding: 15px;
@@ -231,7 +225,7 @@
             <input type="text" id="search" placeholder="🔍 Search for a name">
         </div>
 
-        <table border="1">
+        <table>
             <thead>
                 <tr>
                     <th>#</th>
